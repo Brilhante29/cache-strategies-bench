@@ -7,7 +7,7 @@ program:
     reproducible hit_ratio and p95_latency_ms metrics.
   shared_assets:
     - benchmark design pattern (strategy-per-run, warmup-then-workload)
-status: benchmarked
+status: published
 claim: cache-aside vs write-through
 stack:
   - java21
@@ -68,7 +68,7 @@ decision_brain:
   runtime: docker (multi-stage build, eclipse-temurin JRE)
   library_policy: >
     Spring Boot starter-web for REST scaffold, Jackson for JSON output.
-    No persistence, caching, or messaging libraries — all in-memory.
+    No persistence, caching, or messaging libraries â€” all in-memory.
   record_path: sdd/technical-decision.md
   rejected_options:
     - option: Redis + PostgreSQL (full stack)
