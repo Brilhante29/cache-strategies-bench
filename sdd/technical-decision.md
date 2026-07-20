@@ -2,119 +2,116 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Decision Type
 
-`<stack|api-style|cloud|messaging|database|library|runtime|framework>`
+stack, library, runtime
 
 ## Context
 
-Project: `<project-name>`
-Problem: `<problem to solve>`
-Portfolio program: `<program>`
-Public signal: `<GitHub/LinkedIn proficiency signal>`
-Benchmark: `<metric>`
+Project: `cache-strategies-bench`
+Problem: Compare cache-aside vs write-through caching strategies with reproducible hit_ratio and p95_latency_ms metrics.
+Portfolio program: backend-reliability-platform
+Public signal: Java + Spring Boot benchmark with architecture boundaries, unit tests, and Docker delivery.
+Benchmark: hit_ratio, p95_latency_ms
 
 ## Selected Option
 
-Selected: `<option>`
+Selected: Java 21 + Spring Boot 3.4 + Gradle Kotlin DSL + Jackson
 
 Reason:
 
-`<Why this option fits the problem, benchmark, and public signal.>`
+- Java 21 provides modern language features (records, pattern matching, virtual threads) and LTS stability
+- Spring Boot 3.4 provides dependency injection, configuration, and CLI runner scaffold
+- Gradle Kotlin DSL is the standard for modern JVM projects
+- Jackson is the de facto JSON library for Java and is included in spring-boot-starter-web
+- In-memory implementations remove external service dependencies, keeping the benchmark local-first
 
 ## Decision Brain Fields
 
-- Stack profile: `<spring-kotlin-backend|fastapi-backend|go-backend|node-typescript-backend|angular|nextjs|python-ml|terraform>`
-- API style: `<rest-http|graphql|grpc|websocket|sse|cli>`
-- Messaging: `<none|outbox-only|rabbitmq|kafka|redis-streams|nats>`
-- Cloud mode: `<none|kumo-local-first|adapter-fake|real-cloud-required>`
-- Database/runtime: `<selection>`
-- Library policy: `<selection>`
+- Stack profile: java
+- API style: rest-http
+- Messaging: none
+- Cloud mode: none
+- Database/runtime: in-memory simulation / Docker
+- Library policy: minimal — Spring Boot starter-web, Jackson. No persistence, caching, or messaging libraries.
 
 ## Engineering Principles
 
 Coupling boundary:
 
-`<Domain/use cases must not depend on framework, DB, broker, cloud SDK, transport, or UI.>`
+Domain (Product, ProductRepository, CacheStrategy) does not depend on framework. Strategy implementations reference InMemoryCache (application layer) and ProductRepository (domain interface).
 
 SOLID application:
 
-- SRP: `<how responsibilities are split>`
-- OCP: `<how behavior extends without rewriting stable policy>`
-- LSP: `<how adapters/fakes/reals stay substitutable>`
-- ISP: `<small ports/interfaces used>`
-- DIP: `<high-level policy depends on abstractions>`
+- SRP: Each strategy has one responsibility (get/put/evict with specific semantics)
+- OCP: New strategies implement CacheStrategy without modifying existing code
+- LSP: CacheAsideStrategy and WriteThroughStrategy are substitutable for CacheStrategy
+- ISP: CacheStrategy interface exposes minimal surface area (get, save, evict, getName, metrics)
+- DIP: BenchmarkRunner depends on CacheStrategy abstraction, not concrete implementations
 
 Simplicity:
 
-- KISS: `<simplest design that proves the claim>`
-- YAGNI: `<future abstraction intentionally not added>`
-- DRY: `<duplicated business knowledge removed without premature abstraction>`
+- KISS: In-memory cache with ConcurrentHashMap + TTL. No distributed cache, no eviction policies.
+- YAGNI: No metrics export (Micrometer), no health checks, no distributed tracing
+- DRY: Strategy code is intentionally not shared — the point is to show different behaviors
 
 Testability evidence:
 
-- `<use case test without transport/infrastructure>`
-- `<adapter or contract test>`
+- CacheAsideStrategyTest + WriteThroughStrategyTest: pure Java, no Spring, instant setup
+- InMemoryCacheTest: no dependencies, fast assertions
+- BenchmarkRunnerTest: Jackson serialization, service wiring
+
 ## Rejected Options
 
 | Option | Why rejected |
 |---|---|
-| `<option>` | `<reason>` |
-| `<option>` | `<reason>` |
+| Kotlin | Java is the primary profile; Kotlin adds unnecessary language complexity |
+| Redis + PostgreSQL | Requires Docker Compose, increases build time, adds no value to strategy comparison |
+| WebFlux | Blocking I/O matches the simulated DB latency; reactive adds complexity without benefit |
+| Spring Data JPA | No real database needed; simulated latency is controlled and deterministic |
+| Maven | Gradle Kotlin DSL is the standard for modern Spring Boot projects in this portfolio |
 
 ## API Contract
 
-Contract artifact:
+Contract artifact: OpenAPI (implicit — two endpoints documented in code)
 
-`<OpenAPI|GraphQL schema|protobuf|event contract|CLI output schema|none>`
+REST API (for interactive use):
 
-GraphQL controls, when applicable:
-
-- Query complexity/depth limit: `<yes|no|not applicable>`
-- N+1 prevention: `<DataLoader/batching plan|not applicable>`
-- Field-level auth rule: `<yes|no|not applicable>`
+- `GET /api/products/{id}` — get product by ID using current strategy
+- `POST /api/products` — create product using current strategy
+- `POST /api/products/strategy/{name}` — switch active strategy
 
 ## Cloud Local-First
 
-Local provider:
+Local provider: none (fully local, no cloud dependencies)
 
-`<kumo|none|adapter fake>`
+Config switch: none
 
-Real provider target:
-
-`<aws|none|other>`
-
-Config switch:
-
-```txt
-CLOUD_PROVIDER=<kumo|aws|none>
-CLOUD_ENDPOINT=http://localhost:4566
-```
-
-Unsupported local behaviors:
-
-- `<behavior or none>`
+Unsupported local behaviors: none
 
 ## Benchmark Impact
 
 Expected impact:
 
-- `<metric/result this decision should improve or clarify>`
+- Clear comparison of hit_ratio under 80/20 read/write workload
+- P95 latency shows the cost of cache misses (DB reads) vs cache hits
+- Deterministic seed ensures reproducibility across runs
 
 Validation command:
 
 ```powershell
-<command>
+docker build -t cache-strategies-bench .; docker run --rm cache-strategies-bench
 ```
 
 ## Operational Cost
 
-- Docker services added: `<none|kumo|postgres|redis|rabbitmq|redpanda|...>`
-- Local demo complexity: `<low|medium|high>`
-- Failure case required: `<yes|no>`
+- Docker services added: none (single-stage: build + run in one container)
+- Local demo complexity: low
+- Failure case required: no
 
 ## Follow-up
 
-- `<what must be revisited if benchmark fails>`
+- If benchmark shows unexpected results, verify warmup phase and cache TTL
+- If hit ratio is identical, verify workload distribution targets both strategies fairly

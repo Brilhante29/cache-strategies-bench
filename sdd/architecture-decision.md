@@ -2,68 +2,83 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
-Project: `<project-name>`
-Claim: `<measurable claim>`
-Benchmark: `<primary metric>`
+Project: `cache-strategies-bench`
+Claim: `cache-aside vs write-through — compare caching strategies`
+Benchmark: `hit_ratio, p95_latency_ms`
 
 Problem forces:
 
-- Domain complexity: `<low|medium|high>`
-- Integration pressure: `<low|medium|high>`
-- UI state complexity: `<low|medium|high|none>`
-- Data/ML reproducibility: `<low|medium|high>`
-- Auditability/event history: `<low|medium|high>`
-- Throughput/async pressure: `<low|medium|high>`
-- Independent deployability need: `<low|medium|high>`
+- Domain complexity: low
+- Integration pressure: low
+- UI state complexity: none
+- Data/ML reproducibility: medium
+- Auditability/event history: low
+- Throughput/async pressure: low
+- Independent deployability need: low
 
 ## Decision
 
-Chosen architecture: `<style>`
+Chosen architecture: `layered`
 
 Reason:
 
-`<Explain why this architecture fits the actual problem and benchmark.>`
+The problem is a simple microbenchmark comparing two cache strategies. A layered
+architecture with domain, application, and benchmark layers is sufficient. No
+external adapters, no database migrations, no event bus. The layers map directly
+to the package structure.
 
 Dependency rule:
 
-`<Example: domain/application do not depend on infra; adapters depend inward through ports.>`
+Domain and application classes have no framework dependency beyond Spring
+stereotype annotations (@Component, @Service). Benchmark orchestration lives in
+the benchmark layer and depends on application services.
 
 ## Rejected Alternatives
 
 | Alternative | Why rejected |
 |---|---|
-| `<style>` | `<reason>` |
-| `<style>` | `<reason>` |
+| hexagonal | Overkill — no adapter swapping, single in-memory implementation for both cache and store |
+| clean-architecture | Extra ceremony (use cases, ports) would obscure the benchmark result |
+| MVC | No views, no templates, no HTTP-rendered UI |
 
 ## Folder Layout
 
-```txt
-src/
-  <folders>
-test/
-benchmarks/
+```
+src/main/java/com/portfolio/cachebench/
+  CacheBenchApplication.java
+  domain/
+  application/
+  benchmark/
+src/test/java/com/portfolio/cachebench/
+  domain/
+  benchmark/
 ```
 
 ## Testing Strategy
 
-- Unit tests: `<what is isolated>`
-- Integration tests: `<what is wired>`
-- Benchmark: `<what proves the claim>`
+- Unit tests: Strategy implementations (pure Java, no Spring), InMemoryCache
+- Integration tests: Benchmark runner wiring, JSON serialization
+- Benchmark: CommandLineRunner runs on startup, outputs JSON to stdout and file
 
 ## Consequences
 
 Positive:
 
-- `<benefit>`
+- Simple, testable, easy to understand
+- No external dependencies needed for build or run
+- Benchmark is self-contained in a single JAR
 
 Tradeoffs:
 
-- `<cost>`
+- In-memory simulation may not reflect real Redis + PostgreSQL performance
+- Results are relative comparison, not absolute numbers for production
 
 Migration path:
 
-- `<how to evolve if the problem grows>`
+- Replace InMemoryCache with Redis binding (Jedis/Lettuce)
+- Replace InMemoryProductStore with Spring Data JPA + PostgreSQL
+- Add Spring Web to enable REST API alongside benchmark

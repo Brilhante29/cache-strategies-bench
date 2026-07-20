@@ -2,6 +2,8 @@
 
 | Reference | License | Used for | Copied code? |
 |---|---|---|---|
-| redis-patterns | pending | architecture/tooling/benchmark reference | no |
+| Spring Boot 3.4 Reference | Apache 2.0 | Application scaffold, dependency injection | no |
+| Oracle Java 21 Documentation | Oracle BCL | Java language features | no |
+| Jackson Project | Apache 2.0 | JSON serialization of benchmark results | no |
 
-Implementation, fixtures, benchmark scripts and reported results must be project-specific.
+Implementation, fixtures, benchmark scripts and reported results are project-specific.
