@@ -7,7 +7,7 @@ program:
     reproducible hit_ratio and p95_latency_ms metrics.
   shared_assets:
     - benchmark design pattern (strategy-per-run, warmup-then-workload)
-status: published
+status: implemented
 claim: cache-aside vs write-through
 stack:
   - java21
