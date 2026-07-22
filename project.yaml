@@ -140,7 +140,7 @@ benchmark:
   primary_metric: hit_ratio
   unit: unit
   command: docker run --rm cache-strategies-bench
-  result_path: benchmarks/results/*.json
+  result_path: benchmarks/results/benchmark-result.json
 release:
   docker: docker run --rm cache-strategies-bench
   no_secret_default_path: true
