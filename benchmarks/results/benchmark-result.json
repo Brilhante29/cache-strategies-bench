@@ -1,5 +1,8 @@
 {
   "project" : "cache-strategies-bench",
+  "metric" : "hit_ratio",
+  "value" : 80.3125,
+  "unit" : "percent",
   "claim" : "cache-aside vs write-through (hit_ratio, p95_latency_ms)",
   "timestamp" : "2026-07-20T20:57:45.356461862Z",
   "environment" : {
