@@ -13,6 +13,15 @@ public class StrategyResult {
     @JsonProperty("p95_latency_ms")
     private double p95LatencyMs;
 
+    @JsonProperty("p99_latency_ms")
+    private double p99LatencyMs;
+
+    @JsonProperty("throughput_ops_s")
+    private double throughputOpsPerSecond;
+
+    @JsonProperty("consistency_failures")
+    private int consistencyFailures;
+
     @JsonProperty("hits")
     private long hits;
 
@@ -30,9 +39,20 @@ public class StrategyResult {
 
     public StrategyResult(String strategy, double hitRatio, double p95LatencyMs,
                           long hits, long misses, long totalOperations, long totalTimeMs) {
+        this(strategy, hitRatio, p95LatencyMs, p95LatencyMs, 0.0, 0,
+                hits, misses, totalOperations, totalTimeMs);
+    }
+
+    public StrategyResult(String strategy, double hitRatio, double p95LatencyMs,
+                          double p99LatencyMs, double throughputOpsPerSecond,
+                          int consistencyFailures, long hits, long misses,
+                          long totalOperations, long totalTimeMs) {
         this.strategy = strategy;
         this.hitRatio = hitRatio;
         this.p95LatencyMs = p95LatencyMs;
+        this.p99LatencyMs = p99LatencyMs;
+        this.throughputOpsPerSecond = throughputOpsPerSecond;
+        this.consistencyFailures = consistencyFailures;
         this.hits = hits;
         this.misses = misses;
         this.totalOperations = totalOperations;
@@ -61,6 +81,30 @@ public class StrategyResult {
 
     public void setP95LatencyMs(double p95LatencyMs) {
         this.p95LatencyMs = p95LatencyMs;
+    }
+
+    public double getP99LatencyMs() {
+        return p99LatencyMs;
+    }
+
+    public void setP99LatencyMs(double p99LatencyMs) {
+        this.p99LatencyMs = p99LatencyMs;
+    }
+
+    public double getThroughputOpsPerSecond() {
+        return throughputOpsPerSecond;
+    }
+
+    public void setThroughputOpsPerSecond(double throughputOpsPerSecond) {
+        this.throughputOpsPerSecond = throughputOpsPerSecond;
+    }
+
+    public int getConsistencyFailures() {
+        return consistencyFailures;
+    }
+
+    public void setConsistencyFailures(int consistencyFailures) {
+        this.consistencyFailures = consistencyFailures;
     }
 
     public long getHits() {

@@ -1,148 +1,113 @@
 id: 19
 name: cache-strategies-bench
+manifest_version: 2
 program:
   id: backend-reliability-platform
-  narrative_fit: >
-    Proves cache strategy tradeoffs (cache-aside vs write-through) with
-    reproducible hit_ratio and p95_latency_ms metrics.
+  narrative_fit: "Accelerates the read path after payments, events, saga state, and outbox delivery establish the transactional source of truth."
   shared_assets:
-    - benchmark design pattern (strategy-per-run, warmup-then-workload)
-status: benchmarked
-claim: cache-aside vs write-through
+    - commerce product read model
+    - benchmark result v2
+    - infrastructure port parity pattern
+status: ready
+claim: "Cache-aside and write-through are compared on real Redis and PostgreSQL with reproducible latency, hit-ratio, throughput, and consistency evidence."
 stack:
-  - java21
-  - spring-boot
-  - docker
+  - java-21
+  - spring-boot-3.4
+  - spring-jdbc
+  - spring-data-redis
+  - lettuce
+  - postgresql-16
+  - redis-7
+  - flyway
+  - jackson
+  - junit-5
+  - gradle-8.10
+  - docker-compose
 language_profile:
-  primary: java
+  primary: java-backend
   secondary: []
-  reason: >
-    Java with Spring Boot provides idiomatic caching patterns and
-    reproducible benchmark infrastructure for a backend reliability claim.
+  reason: "Java keeps this JVM repository interoperable with the Kotlin payment and saga services while explicit ports expose infrastructure substitution."
 decision_brain:
   agentic_spec:
     source: .portfolio/decision-brain/agentic-spec-governance.yaml
     spec_store: portfolio-reuse-kit
     schema: portfolio-system
     project_config: openspec/config.yaml
-    component_pack: default-portfolio-project
-    artifact_graph:
-      - intent->portfolio-impact->architecture-record
-      - architecture-record+portfolio-impact->component-pack
-      - component-pack->reuse-delta->benchmark-proof->tasks->verification
+    component_pack: backend-reliability-platform
   agent_graph:
     mode: principal-agent-orchestrated
     source: .portfolio/decision-brain/agent-graph.yaml
     handoff: sdd/agent-handoff.md
-    local_first_runtime: docker
+    local_first_runtime: docker-compose
   reuse_improvement_loop:
     source: .portfolio/decision-brain/reuse-improvement-loop.yaml
     review_path: sdd/reuse-improvement-review.md
-    current_status: completed
+    current_status: reviewed
   principles:
-    coupling_rule: domain/use cases do not depend on framework, database, broker, cloud SDK, transport, or UI
+    coupling_rule: "Strategies depend on ProductCache and ProductRepository ports; Spring, Redis, JDBC, Flyway, and Docker remain adapters."
     solid: [srp, ocp, lsp, isp, dip]
-    simplicity_rule: >
-      One Product entity, one Repository port, two strategy implementations,
-      one in-memory cache, one in-memory store with simulated latency.
-      No ORM, no real database, no external services.
-    testability_rule: >
-      All strategies are pure Java with no Spring dependency; tested with
-      plain JUnit 5. Benchmark runs as CommandLineRunner.
+    simplicity_rule: "One product model, two strategies, Redis, PostgreSQL, and one deterministic workload."
+    testability_rule: "In-memory and real adapters share contracts; pure strategy tests run without Spring."
     rejected_overengineering:
-      - Spring Data JPA / real PostgreSQL (unnecessary for strategy comparison)
-      - Redis / external cache (in-memory is sufficient for microbenchmark)
-      - WebFlux / reactive (blocking I/O matches the simulated DB latency claim)
-  stack_profile: java
-  api_style: rest-http
+      - REST API
+      - GraphQL
+      - Kafka or RabbitMQ
+      - JPA
+      - Kubernetes
+  stack_profile: java-backend
+  api_style: cli
   messaging: none
   cloud:
-    mode: none
-    local_provider: none
-    real_provider_target: none
+    mode: local-first
+    local_provider: docker-compose
+    real_provider_target: managed-postgresql-and-redis
     emulated_services: []
-    adapter_rule: n/a
-    config_switch: none
-    unsupported_behaviors: []
-  database: none (in-memory simulation)
-  runtime: docker (multi-stage build, eclipse-temurin JRE)
-  library_policy: >
-    Spring Boot starter-web for REST scaffold, Jackson for JSON output.
-    No persistence, caching, or messaging libraries â€” all in-memory.
+    adapter_rule: "Cloud endpoints change adapter configuration only; cloud SDKs never enter domain code."
+    config_switch: "POSTGRES_URL and REDIS_HOST"
+    unsupported_behaviors:
+      - managed failover
+      - multi-region latency
+  database: postgresql
+  runtime: "Java 21, PostgreSQL 16, Redis 7"
+  library_policy: "Spring JDBC exposes SQL; Spring Data Redis manages Lettuce and TTL; Flyway owns schema; Jackson emits benchmark V2."
   record_path: sdd/technical-decision.md
-  rejected_options:
-    - option: Redis + PostgreSQL (full stack)
-      reason: >
-        Adds Docker Compose complexity without changing the cache strategy
-        comparison. In-memory cache + simulated DB latency is sufficient
-        for the benchmark claim.
-    - option: Kotlin
-      reason: >
-        Java is the primary language profile. Kotlin would add unnecessary
-        language complexity for this benchmark.
 architecture:
-  style: layered
-  reason: >
-    Simple layered architecture with domain (entities + ports + strategies),
-    application (services + cache + store), and benchmark (runner + results).
-    No complex boundaries needed for a benchmark comparing two strategies.
+  style: hexagonal
+  reason: "The benchmark must substitute in-memory test doubles and networked infrastructure without changing strategy behavior."
   problem_forces:
     domain_complexity: low
-    integration_pressure: low
+    integration_pressure: high
     ui_state_complexity: none
     data_or_ml_reproducibility: medium
-    auditability: low
-    throughput_or_async: low
+    auditability: medium
+    throughput_or_async: medium
     independent_deployability: low
-  dependency_rule: >
-    domain depends on application (InMemoryCache) for strategy implementations.
-    Benchmark depends on application. All classes are in a single JAR.
+  dependency_rule: "Adapters depend inward on domain ports; domain packages import no application, Spring, Redis, JDBC, or Docker types."
   boundaries:
-    - domain: Product, ProductRepository, CacheStrategy, CacheAsideStrategy, WriteThroughStrategy
-    - application: InMemoryCache, InMemoryProductStore, CacheBenchService, ProductController
-    - benchmark: BenchmarkRunner, BenchmarkResult, StrategyResult
-  rejected_alternatives:
-    - style: hexagonal
-      reason: >
-        Overkill for a two-strategy benchmark with no adapter swapping.
-        The layering matches the problem scope.
-    - style: clean-architecture
-      reason: >
-        Extra ceremony (use cases, repositories as interfaces, dependency
-        inversion) would obscure the benchmark result.
+    - product and cache strategy domain
+    - cache and repository output ports
+    - Redis and PostgreSQL adapters
+    - deterministic benchmark producer
 design_system:
-  tokens: design-system/tokens.yaml
-  readme_components:
-    - readme_header
-    - benchmark_card
-    - architecture_card
-    - references_table
-  diagram_required: false
+  tokens: .portfolio/design-system/tokens.yaml
+  readme_components: [readme_header, benchmark_card, architecture_card, references_table]
+  diagram_required: true
 reuse:
   kit_version: local
   uses:
-    - catalog
-    - programs
-    - proficiency-map
-    - component-packs
-    - openspec-schema
-    - decision-brain
-    - agent-graph
-    - reuse-improvement-loop
-    - architecture
-    - language-profiles
-    - design-system
-    - sdd
-    - harness
-    - templates
-    - skills
+    - backend-reliability-platform component pack
+    - benchmark-result-v2 contract
+    - java language profile
+    - architecture selector
+    - reuse improvement loop
 benchmark:
-  primary_metric: hit_ratio
-  unit: unit
-  command: docker run --rm cache-strategies-bench
-  result_path: benchmarks/results/benchmark-result.json
+  primary_metric: write_through_p95_latency_ms
+  unit: milliseconds
+  command: powershell -NoProfile -ExecutionPolicy Bypass -File tools/benchmark.ps1
+  result_path: benchmarks/results/cache-strategies-v2.json
+  evidence_status: current
 release:
-  docker: docker run --rm cache-strategies-bench
+  docker: docker compose up --build --abort-on-container-exit --exit-code-from benchmark benchmark
   no_secret_default_path: true
   readme_has_number: true
   references_documented: true

@@ -1,67 +1,24 @@
-# Spec: cache-strategies-bench
+# Spec: #19 cache-strategies-bench
 
-## Number
+## Objective
 
-#19
+Measure cache-aside and write-through against real Redis 7 and PostgreSQL 16 under the same deterministic 80/20 read/write workload.
 
-## Claim
+## In Scope
 
-cache-aside vs write-through — which strategy yields higher hit ratio and lower P95 latency under a mixed read/write workload?
+- `ProductCache` and `ProductRepository` ports with in-memory test adapters and real Redis/JDBC adapters.
+- Three repetitions with equal workload configuration and warm-up count.
+- Hit ratio, p95, p99, throughput, and stale-cache consistency checks.
+- Docker Compose local-first runtime and V2 benchmark artifact.
 
-## Stack
+## Out Of Scope
 
-java21, spring-boot, docker
+- Production sizing, multi-region behavior, Redis durability, HTTP API, broker, ORM, and cloud SDK.
 
-## User-visible output
+## Acceptance
 
-- Docker command: `docker run --rm cache-strategies-bench`
-- README opens with: # #19 cache-strategies-bench
-- Benchmark table: hit_ratio, p95_latency_ms
-
-## Scope
-
-In:
-
-- In-memory cache + simulated DB with configurable latency
-- Two cache strategies (cache-aside, write-through)
-- Configurable workload: N operations, M products, read/write ratio
-- Reproducible JSON benchmark result
-- Docker multi-stage build
-
-Out:
-
-- Real Redis, PostgreSQL, or any external service
-- Kubernetes, compose, or multi-container orchestration
-- Web UI or dashboard
-- Paid credentials or secrets
-
-## Architecture
-
-```
-client -> app -> domain -> adapters -> benchmark output
-```
-
-## Benchmark
-
-Primary metric:
-
-- name: hit_ratio, p95_latency_ms
-- target: first reproducible baseline
-- command: `docker run --rm cache-strategies-bench`
-- result file: `benchmarks/results/benchmark-result.json`
-
-## Dataset or fixture
-
-- source: synthetic (generated in-memory)
-- size: 100 products
-- license: MIT
-- deterministic seed: 42
-
-## Definition of done
-
-- [x] Docker command works from clean clone.
-- [x] README starts with project number and benchmark result.
-- [x] Benchmark command writes JSON result.
-- [x] Tests cover core behavior.
-- [x] REFERENCES.md explains reuse.
-- [x] No secret or paid credential required for default demo.
+- [x] Real Redis and PostgreSQL participate in the measured path.
+- [x] Domain strategies contain no framework imports.
+- [x] The container regenerates `benchmarks/results/cache-strategies-v2.json` through a host volume.
+- [x] README opens with project number and measured values.
+- [x] Default path requires no secret or paid service.

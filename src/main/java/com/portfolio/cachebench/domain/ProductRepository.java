@@ -9,4 +9,8 @@ public interface ProductRepository {
     Product save(Product product);
 
     void deleteById(Long id);
+
+    int count();
+
+    void deleteAll();
 }

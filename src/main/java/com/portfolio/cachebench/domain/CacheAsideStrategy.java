@@ -1,17 +1,15 @@
 package com.portfolio.cachebench.domain;
 
-import com.portfolio.cachebench.application.InMemoryCache;
-
 import java.util.Optional;
 
 public class CacheAsideStrategy implements CacheStrategy {
 
-    private final InMemoryCache cache;
+    private final ProductCache cache;
     private final ProductRepository repository;
     private long hits;
     private long misses;
 
-    public CacheAsideStrategy(InMemoryCache cache, ProductRepository repository) {
+    public CacheAsideStrategy(ProductCache cache, ProductRepository repository) {
         this.cache = cache;
         this.repository = repository;
     }

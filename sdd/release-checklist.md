@@ -1,12 +1,10 @@
 # Release Checklist
 
-- [x] `docker build` passes.
-- [x] `docker run` path documented.
-- [x] Benchmark command runs from clean checkout.
-- [x] Benchmark result stored under `benchmarks/results/`.
-- [x] README opens with number and result.
-- [x] `REFERENCES.md` exists.
-- [x] License exists.
-- [x] No empty directories used as proof.
-- [x] No API key required for the default path.
-- [x] Post angle written in README.
+- [x] Gradle wrapper is complete and `.gradle` is ignored.
+- [x] Unit tests pass inside the Docker build.
+- [x] Redis/PostgreSQL Compose benchmark exits zero.
+- [x] V2 result is regenerated through a host volume.
+- [x] README opens with measured values and documents limits.
+- [x] References and reuse review are complete.
+- [x] Default path needs no secret or paid account.
+- [ ] Exact-head GitHub Actions run is green on `main`.

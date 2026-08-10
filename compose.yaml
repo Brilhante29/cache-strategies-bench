@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: cachebench
+      POSTGRES_USER: cachebench
+      POSTGRES_PASSWORD: cachebench
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cachebench -d cachebench"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  benchmark:
+    image: ${IMAGE_REF:-cache-strategies-bench:local}
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/cachebench
+      POSTGRES_USER: cachebench
+      POSTGRES_PASSWORD: cachebench
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RESULT_PATH: /results/cache-strategies-v2.json
+      SOURCE_COMMIT: ${SOURCE_COMMIT:-0000000000000000000000000000000000000000}
+      IMAGE_REF: ${IMAGE_REF:-cache-strategies-bench:local}
+      IMAGE_DIGEST: ${IMAGE_DIGEST:-sha256:0000000000000000000000000000000000000000000000000000000000000000}
+      DEPENDENCY_LOCK_DIGEST: ${DEPENDENCY_LOCK_DIGEST:-sha256:0000000000000000000000000000000000000000000000000000000000000000}
+      BENCHMARK_PRODUCER: ${BENCHMARK_PRODUCER:-local}
+      BENCHMARK_REPEATS: ${BENCHMARK_REPEATS:-3}
+      WARMUP_OPERATIONS: ${WARMUP_OPERATIONS:-200}
+      MEASURED_OPERATIONS: ${MEASURED_OPERATIONS:-2000}
+    volumes:
+      - ./benchmarks/results:/results
+

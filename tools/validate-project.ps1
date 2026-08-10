@@ -43,7 +43,14 @@ $requiredFiles = @(
   "sdd/architecture-decision.md",
   "sdd/technical-decision.md",
   "sdd/agent-handoff.md",
-  "sdd/reuse-improvement-review.md"
+  "sdd/reuse-improvement-review.md",
+  "compose.yaml",
+  "gradlew",
+  "gradlew.bat",
+  "gradle/wrapper/gradle-wrapper.jar",
+  "gradle/wrapper/gradle-wrapper.properties",
+  "benchmarks/results/cache-strategies-v2.json",
+  ".portfolio/contracts/benchmark-result-v2.schema.json"
 )
 foreach ($file in $requiredFiles) { Require-File $file }
 
@@ -81,6 +88,35 @@ Push-Location -LiteralPath $root
 try {
   foreach ($file in $benchmarkFiles) {
     Invoke-Checked "benchmark JSON validation: $($file.Name)" { python -m json.tool $file.FullName | Out-Null }
+    if ($file.Name -eq "cache-strategies-v2.json") {
+      try {
+        $result = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
+        if ($result.schema_version -ne 2) { Add-Failure "V2 benchmark schema_version must equal 2" }
+        foreach ($property in @("run_id", "project", "benchmark_id", "workload", "metrics", "execution", "environment", "provenance", "comparability_key")) {
+          if (-not ($result.PSObject.Properties.Name -contains $property)) {
+            Add-Failure "V2 benchmark is missing property: $property"
+          }
+        }
+        if ($result.metrics.Count -lt 1) { Add-Failure "V2 benchmark must contain metrics" }
+        foreach ($metric in $result.metrics) {
+          foreach ($property in @("name", "value", "unit", "direction", "samples", "failures", "summary")) {
+            if (-not ($metric.PSObject.Properties.Name -contains $property)) {
+              Add-Failure "V2 metric is missing property: $property"
+            }
+          }
+        }
+        foreach ($digest in @($result.workload.fixture_digest, $result.workload.config_digest, $result.provenance.image_digest, $result.provenance.dependency_lock_digest, $result.provenance.artifact_digest)) {
+          if ([string]$digest -notmatch '^sha256:[0-9a-f]{64}$') {
+            Add-Failure "V2 benchmark contains an invalid SHA-256 digest"
+          }
+        }
+        if ([string]$result.provenance.source_commit -notmatch '^[0-9a-f]{40}$') {
+          Add-Failure "V2 benchmark source_commit must be a 40-character Git SHA"
+        }
+      } catch {
+        Add-Failure "Cannot validate V2 benchmark: $($_.Exception.Message)"
+      }
+    }
   }
 
   if (Test-Path -LiteralPath (Join-Path $root "src") -PathType Container) {
@@ -97,6 +133,20 @@ try {
       Invoke-Checked "python unittest" { python -m unittest discover -s (Join-Path $root "tests") -v }
     }
     $env:PYTHONPATH = $previousPythonPath
+  }
+
+  if (Test-Path -LiteralPath (Join-Path $root "build.gradle.kts") -PathType Leaf) {
+    $javaCommand = Get-Command java -ErrorAction SilentlyContinue
+    if ($javaCommand) {
+      $wrapper = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) {
+        Join-Path $root "gradlew.bat"
+      } else {
+        Join-Path $root "gradlew"
+      }
+      Invoke-Checked "gradle check" { & $wrapper check --no-daemon }
+    } elseif ($SkipDocker) {
+      Add-Failure "Java 21 is required when Docker validation is skipped"
+    }
   }
 } finally {
   Pop-Location

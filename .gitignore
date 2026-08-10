@@ -2,8 +2,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+.gradle/
 benchmarks/results/*.json
 !benchmarks/results/benchmark-result.json
+!benchmarks/results/cache-strategies-v2.json
 dist/
 target/
 build/

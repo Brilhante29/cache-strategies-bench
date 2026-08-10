@@ -1,0 +1,146 @@
+{
+  "schema_version" : 2,
+  "run_id" : "ec6d6633-0bde-4e90-9e91-e547a49d2ab0",
+  "project" : "cache-strategies-bench",
+  "benchmark_id" : "redis-postgres-cache-strategies",
+  "workload" : {
+    "version" : "2.0",
+    "fixture_digest" : "sha256:60bfe15d754cf9300c3f4d754e2d68c8db4b370135455b007f33245d2f2fbfa9",
+    "config_digest" : "sha256:9ec5452bdb05ccb2511baea7cf741c19d98275282c94a05a441a5cf4a20fc9de",
+    "warmup_iterations" : 200,
+    "measured_iterations" : 12000,
+    "concurrency" : 1
+  },
+  "metrics" : [ {
+    "name" : "cache_aside_hit_ratio",
+    "value" : 80.40201005025126,
+    "unit" : "percent",
+    "direction" : "higher_is_better",
+    "samples" : [ 80.3125, 80.57464084946908, 80.40201005025126 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 80.3125,
+      "median" : 80.40201005025126,
+      "max" : 80.57464084946908
+    }
+  }, {
+    "name" : "write_through_hit_ratio",
+    "value" : 100.0,
+    "unit" : "percent",
+    "direction" : "higher_is_better",
+    "samples" : [ 100.0, 100.0, 100.0 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 100.0,
+      "median" : 100.0,
+      "max" : 100.0
+    }
+  }, {
+    "name" : "cache_aside_p95_latency_ms",
+    "value" : 4.761289,
+    "unit" : "milliseconds",
+    "direction" : "lower_is_better",
+    "samples" : [ 5.96063, 4.761289, 4.168963 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 4.168963,
+      "median" : 4.761289,
+      "max" : 5.96063
+    }
+  }, {
+    "name" : "write_through_p95_latency_ms",
+    "value" : 4.517591,
+    "unit" : "milliseconds",
+    "direction" : "lower_is_better",
+    "samples" : [ 4.958352, 4.517591, 3.976908 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 3.976908,
+      "median" : 4.517591,
+      "max" : 4.958352
+    }
+  }, {
+    "name" : "cache_aside_p99_latency_ms",
+    "value" : 6.576571,
+    "unit" : "milliseconds",
+    "direction" : "lower_is_better",
+    "samples" : [ 8.430628, 6.576571, 5.637531 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 5.637531,
+      "median" : 6.576571,
+      "max" : 8.430628
+    }
+  }, {
+    "name" : "write_through_p99_latency_ms",
+    "value" : 6.561994,
+    "unit" : "milliseconds",
+    "direction" : "lower_is_better",
+    "samples" : [ 7.505421, 6.561994, 5.058806 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 5.058806,
+      "median" : 6.561994,
+      "max" : 7.505421
+    }
+  }, {
+    "name" : "cache_aside_throughput_ops_s",
+    "value" : 490.2354336428329,
+    "unit" : "operations_per_second",
+    "direction" : "higher_is_better",
+    "samples" : [ 384.29530527732794, 490.2354336428329, 609.9549333852037 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 384.29530527732794,
+      "median" : 490.2354336428329,
+      "max" : 609.9549333852037
+    }
+  }, {
+    "name" : "write_through_throughput_ops_s",
+    "value" : 687.9287864210339,
+    "unit" : "operations_per_second",
+    "direction" : "higher_is_better",
+    "samples" : [ 573.2608809237586, 687.9287864210339, 808.8116123457855 ],
+    "failures" : 0,
+    "summary" : {
+      "min" : 573.2608809237586,
+      "median" : 687.9287864210339,
+      "max" : 808.8116123457855
+    }
+  }, {
+    "name" : "consistency_failures",
+    "value" : 0.0,
+    "unit" : "count",
+    "direction" : "target",
+    "samples" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ],
+    "failures" : 0,
+    "summary" : {
+      "target" : 0
+    }
+  } ],
+  "execution" : {
+    "command" : "powershell -File tools/benchmark.ps1",
+    "started_at" : "2026-08-10T04:59:32.509948651Z",
+    "duration_seconds" : 28.751290837,
+    "exit_code" : 0,
+    "repeat" : 3
+  },
+  "environment" : {
+    "runtime" : "Java 21.0.11",
+    "architecture" : "amd64",
+    "hardware_class" : "local-docker",
+    "database" : "PostgreSQL 16",
+    "cache" : "Redis 7",
+    "processors" : 6
+  },
+  "provenance" : {
+    "source_commit" : "68a0e8446d6db4a86ae500d1bc899beb2f09af1b",
+    "clean_tree" : true,
+    "image_ref" : "cache-strategies-bench:dev",
+    "image_digest" : "sha256:ff29ae3470bc919b09ce516900613a968bd541d5c0fc8d9b3a8c0931f7ec7b0d",
+    "dependency_lock_digest" : "sha256:d46ee510c005517c4f2a349e4374263cd3185e9894905fa57fee41178f43227b",
+    "producer" : "local",
+    "artifact_digest" : "sha256:8027e27124e562c7ec157d2535fbde4321a831033f15573f179ce71f7728ad52"
+  },
+  "comparability_key" : "cache-strategies:redis7:postgres16:java21:80r20w:v2"
+}

@@ -2,14 +2,12 @@ package com.portfolio.cachebench.application;
 
 import com.portfolio.cachebench.domain.Product;
 import com.portfolio.cachebench.domain.ProductRepository;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Component
 public class InMemoryProductStore implements ProductRepository {
 
     static final long MIN_LATENCY_MS = 1;
@@ -41,8 +39,15 @@ public class InMemoryProductStore implements ProductRepository {
         store.remove(id);
     }
 
+    @Override
     public int count() {
         return store.size();
+    }
+
+    @Override
+    public void deleteAll() {
+        store.clear();
+        nextId.set(1);
     }
 
     void simulateLatency() {

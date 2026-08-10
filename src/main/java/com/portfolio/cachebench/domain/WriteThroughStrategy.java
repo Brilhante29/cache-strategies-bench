@@ -1,17 +1,15 @@
 package com.portfolio.cachebench.domain;
 
-import com.portfolio.cachebench.application.InMemoryCache;
-
 import java.util.Optional;
 
 public class WriteThroughStrategy implements CacheStrategy {
 
-    private final InMemoryCache cache;
+    private final ProductCache cache;
     private final ProductRepository repository;
     private long hits;
     private long misses;
 
-    public WriteThroughStrategy(InMemoryCache cache, ProductRepository repository) {
+    public WriteThroughStrategy(ProductCache cache, ProductRepository repository) {
         this.cache = cache;
         this.repository = repository;
     }

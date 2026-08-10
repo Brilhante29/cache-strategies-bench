@@ -3,6 +3,8 @@ package com.portfolio.cachebench.application;
 import com.portfolio.cachebench.domain.CacheAsideStrategy;
 import com.portfolio.cachebench.domain.CacheStrategy;
 import com.portfolio.cachebench.domain.Product;
+import com.portfolio.cachebench.domain.ProductCache;
+import com.portfolio.cachebench.domain.ProductRepository;
 import com.portfolio.cachebench.domain.WriteThroughStrategy;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +14,10 @@ import java.util.List;
 @Service
 public class CacheBenchService {
 
-    private final InMemoryCache cache;
-    private final InMemoryProductStore store;
+    private final ProductCache cache;
+    private final ProductRepository store;
 
-    public CacheBenchService(InMemoryCache cache, InMemoryProductStore store) {
+    public CacheBenchService(ProductCache cache, ProductRepository store) {
         this.cache = cache;
         this.store = store;
     }
@@ -28,17 +30,18 @@ public class CacheBenchService {
         return new WriteThroughStrategy(cache, store);
     }
 
-    public InMemoryCache getCache() {
+    public ProductCache getCache() {
         return cache;
     }
 
-    public InMemoryProductStore getStore() {
+    public ProductRepository getStore() {
         return store;
     }
 
     public void loadTestData(int count) {
+        store.deleteAll();
         for (int i = 1; i <= count; i++) {
-            store.save(new Product(null, "Product-" + i, 10.0 + i, 100 + i));
+            store.save(new Product((long) i, "Product-" + i, 10.0 + i, 100 + i));
         }
     }
 
