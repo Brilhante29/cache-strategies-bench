@@ -34,7 +34,7 @@ services:
       POSTGRES_PASSWORD: cachebench
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      RESULT_PATH: /results/cache-strategies-v2.json
+      RESULT_PATH: ${RESULT_PATH:-/results/cache-strategies-v2.json}
       SOURCE_COMMIT: ${SOURCE_COMMIT:-0000000000000000000000000000000000000000}
       IMAGE_REF: ${IMAGE_REF:-cache-strategies-bench:local}
       IMAGE_DIGEST: ${IMAGE_DIGEST:-sha256:0000000000000000000000000000000000000000000000000000000000000000}
@@ -45,4 +45,3 @@ services:
       MEASURED_OPERATIONS: ${MEASURED_OPERATIONS:-2000}
     volumes:
       - ./benchmarks/results:/results
-

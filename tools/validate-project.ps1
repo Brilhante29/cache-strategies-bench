@@ -1,5 +1,8 @@
 param(
-  [switch]$SkipDocker
+  [switch]$SkipDocker,
+  [switch]$SkipBuild,
+  [switch]$SkipReadmeMetric,
+  [string]$BenchmarkResultPath = "benchmarks/results/cache-strategies-v2.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +56,9 @@ $requiredFiles = @(
   ".portfolio/contracts/benchmark-result-v2.schema.json"
 )
 foreach ($file in $requiredFiles) { Require-File $file }
+Require-File $BenchmarkResultPath
+
+$selectedBenchmarkPath = [System.IO.Path]::GetFullPath((Join-Path $root $BenchmarkResultPath))
 
 $primaryMetricName = ""
 $manifestPath = Join-Path $root "project.yaml"
@@ -105,7 +111,7 @@ try {
       Add-Failure "Invalid benchmark JSON $($file.Name): $($_.Exception.Message)"
       continue
     }
-    if ($file.Name -eq "cache-strategies-v2.json") {
+    if ([System.IO.Path]::GetFullPath($file.FullName) -eq $selectedBenchmarkPath) {
       try {
         $result = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
         if ($result.schema_version -ne 2) { Add-Failure "V2 benchmark schema_version must equal 2" }
@@ -137,7 +143,7 @@ try {
           $valueText = [Convert]::ToString($primaryMetric[0].value, [System.Globalization.CultureInfo]::InvariantCulture)
           $roundedText = ([double]$primaryMetric[0].value).ToString("0.000", [System.Globalization.CultureInfo]::InvariantCulture)
           $readmeOpening = ((Get-Content -LiteralPath (Join-Path $root "README.md") -TotalCount 8) -join "`n")
-          if (-not $readmeOpening.Contains($valueText) -and -not $readmeOpening.Contains($roundedText)) {
+          if (-not $SkipReadmeMetric -and -not $readmeOpening.Contains($valueText) -and -not $readmeOpening.Contains($roundedText)) {
             Add-Failure "README opening must include primary metric value: $valueText"
           }
         }
@@ -147,7 +153,7 @@ try {
     }
   }
 
-  if (Test-Path -LiteralPath (Join-Path $root "build.gradle.kts") -PathType Leaf) {
+  if (-not $SkipBuild -and (Test-Path -LiteralPath (Join-Path $root "build.gradle.kts") -PathType Leaf)) {
     $javaCommand = Get-Command java -ErrorAction SilentlyContinue
     if ($javaCommand) {
       $wrapper = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) {

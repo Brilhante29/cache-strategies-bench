@@ -23,6 +23,9 @@ jobs:
         run: ./gradlew clean test --no-daemon
       - name: Build image
         run: docker build -t cache-strategies-bench:${{ github.sha }} .
+      - name: Validate published portfolio evidence
+        shell: pwsh
+        run: ./tools/validate-project.ps1 -SkipDocker -SkipBuild
       - name: Smoke real Redis and PostgreSQL benchmark
         env:
           SOURCE_COMMIT: ${{ github.sha }}
@@ -33,11 +36,12 @@ jobs:
           BENCHMARK_REPEATS: '1'
           WARMUP_OPERATIONS: '20'
           MEASURED_OPERATIONS: '100'
+          RESULT_PATH: /results/cache-strategies-ci-smoke.json
         run: docker compose up --no-build --abort-on-container-exit --exit-code-from benchmark benchmark
-      - name: Validate portfolio contract
+      - name: Validate generated smoke evidence
         shell: pwsh
-        run: ./tools/validate-project.ps1 -SkipDocker
+        run: ./tools/validate-project.ps1 -SkipDocker -SkipBuild -SkipReadmeMetric -BenchmarkResultPath benchmarks/results/cache-strategies-ci-smoke.json
       - uses: actions/upload-artifact@v6
         with:
           name: cache-benchmark-${{ github.sha }}
-          path: benchmarks/results/cache-strategies-v2.json
+          path: benchmarks/results/cache-strategies-ci-smoke.json
