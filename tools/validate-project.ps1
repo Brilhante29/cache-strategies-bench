@@ -54,6 +54,18 @@ $requiredFiles = @(
 )
 foreach ($file in $requiredFiles) { Require-File $file }
 
+$primaryMetricName = ""
+$manifestPath = Join-Path $root "project.yaml"
+if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+  $manifestText = Get-Content -Raw -LiteralPath $manifestPath
+  $primaryMetricMatch = [regex]::Match($manifestText, "(?m)^\s+primary_metric:\s*([^\r\n#]+)")
+  if ($primaryMetricMatch.Success) {
+    $primaryMetricName = $primaryMetricMatch.Groups[1].Value.Trim().Trim('"').Trim("'")
+  } else {
+    Add-Failure "project.yaml is missing benchmark.primary_metric"
+  }
+}
+
 $reuseReviewPath = Join-Path $root "sdd/reuse-improvement-review.md"
 if (Test-Path -LiteralPath $reuseReviewPath -PathType Leaf) {
   $reuseReview = Get-Content -Raw -LiteralPath $reuseReviewPath
@@ -87,7 +99,12 @@ if ($benchmarkFiles.Count -eq 0) {
 Push-Location -LiteralPath $root
 try {
   foreach ($file in $benchmarkFiles) {
-    Invoke-Checked "benchmark JSON validation: $($file.Name)" { python -m json.tool $file.FullName | Out-Null }
+    try {
+      $null = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
+    } catch {
+      Add-Failure "Invalid benchmark JSON $($file.Name): $($_.Exception.Message)"
+      continue
+    }
     if ($file.Name -eq "cache-strategies-v2.json") {
       try {
         $result = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
@@ -113,26 +130,21 @@ try {
         if ([string]$result.provenance.source_commit -notmatch '^[0-9a-f]{40}$') {
           Add-Failure "V2 benchmark source_commit must be a 40-character Git SHA"
         }
+        $primaryMetric = @($result.metrics | Where-Object { $_.name -eq $primaryMetricName })
+        if ($primaryMetric.Count -ne 1) {
+          Add-Failure "V2 benchmark must contain primary metric: $primaryMetricName"
+        } else {
+          $valueText = [Convert]::ToString($primaryMetric[0].value, [System.Globalization.CultureInfo]::InvariantCulture)
+          $roundedText = ([double]$primaryMetric[0].value).ToString("0.000", [System.Globalization.CultureInfo]::InvariantCulture)
+          $readmeOpening = ((Get-Content -LiteralPath (Join-Path $root "README.md") -TotalCount 8) -join "`n")
+          if (-not $readmeOpening.Contains($valueText) -and -not $readmeOpening.Contains($roundedText)) {
+            Add-Failure "README opening must include primary metric value: $valueText"
+          }
+        }
       } catch {
         Add-Failure "Cannot validate V2 benchmark: $($_.Exception.Message)"
       }
     }
-  }
-
-  if (Test-Path -LiteralPath (Join-Path $root "src") -PathType Container) {
-    $previousPythonPath = $env:PYTHONPATH
-    $srcPath = Join-Path $root "src"
-    if ($previousPythonPath) {
-      $env:PYTHONPATH = $srcPath + [System.IO.Path]::PathSeparator + $previousPythonPath
-    } else {
-      $env:PYTHONPATH = $srcPath
-    }
-    Invoke-Checked "python compile src" { python -m compileall -q (Join-Path $root "src") }
-    if (Test-Path -LiteralPath (Join-Path $root "tests") -PathType Container) {
-      Invoke-Checked "python compile tests" { python -m compileall -q (Join-Path $root "tests") }
-      Invoke-Checked "python unittest" { python -m unittest discover -s (Join-Path $root "tests") -v }
-    }
-    $env:PYTHONPATH = $previousPythonPath
   }
 
   if (Test-Path -LiteralPath (Join-Path $root "build.gradle.kts") -PathType Leaf) {

@@ -8,7 +8,7 @@ Project: `19 - cache-strategies-bench`
 - Architecture: hexagonal; domain strategies depend on cache/repository ports.
 - Runtime: Java 21 + Redis 7 + PostgreSQL 16 through Docker Compose.
 - Evidence: `benchmarks/results/cache-strategies-v2.json`, three real repetitions.
-- Primary number: write-through median p95 `4.517591 ms`; cache-aside `4.761289 ms`.
+- Primary number: write-through median p95 `4.066218 ms`; cache-aside `4.858141 ms`.
 
 ## Continue Safely
 

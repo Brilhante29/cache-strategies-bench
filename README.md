@@ -1,6 +1,6 @@
-# #19 cache-strategies-bench: 4.762 ms vs 4.518 ms median p95
+# #19 cache-strategies-bench: 4.858 ms vs 4.066 ms median p95
 
-**Claim:** under the same 80/20 workload on Redis 7 and PostgreSQL 16, write-through produced `100%` cache hits and `4.518 ms` median p95; cache-aside produced `80.40%` hits and `4.762 ms` median p95, with zero stale cached values across three runs.
+**Claim:** under the same 80/20 workload on Redis 7 and PostgreSQL 16, write-through produced `100%` cache hits and `4.066 ms` median p95; cache-aside produced `80.40%` hits and `4.858 ms` median p95, with zero stale cached values across three runs.
 
 [![CI](https://github.com/Brilhante29/cache-strategies-bench/actions/workflows/ci.yml/badge.svg)](https://github.com/Brilhante29/cache-strategies-bench/actions/workflows/ci.yml)
 
@@ -32,9 +32,9 @@ Result: `benchmarks/results/cache-strategies-v2.json`.
 | Metric | Cache-aside | Write-through | Direction |
 |---|---:|---:|---|
 | hit ratio | 80.40% | 100.00% | higher |
-| median p95 | 4.761 ms | 4.518 ms | lower |
-| median p99 | 6.577 ms | 6.562 ms | lower |
-| median throughput | 490.24 ops/s | 687.93 ops/s | higher |
+| median p95 | 4.858 ms | 4.066 ms | lower |
+| median p99 | 8.114 ms | 6.802 ms | lower |
+| median throughput | 578.58 ops/s | 859.71 ops/s | higher |
 | stale cached values | 0 | 0 | exactly 0 |
 
 Workload: 100 products, seed 42, 80% reads, 20% writes, 200 warm-up operations and 2,000 measured operations per strategy in each of three sequential repetitions. Measured locally on 2026-08-10 with Java 21, Redis 7, PostgreSQL 16 and Docker Desktop.

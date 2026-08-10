@@ -1,6 +1,6 @@
 {
   "schema_version" : 2,
-  "run_id" : "ec6d6633-0bde-4e90-9e91-e547a49d2ab0",
+  "run_id" : "a536a118-3b81-43ba-8feb-eea0dc86eaf0",
   "project" : "cache-strategies-bench",
   "benchmark_id" : "redis-postgres-cache-strategies",
   "workload" : {
@@ -37,75 +37,75 @@
     }
   }, {
     "name" : "cache_aside_p95_latency_ms",
-    "value" : 4.761289,
+    "value" : 4.858141,
     "unit" : "milliseconds",
     "direction" : "lower_is_better",
-    "samples" : [ 5.96063, 4.761289, 4.168963 ],
+    "samples" : [ 6.107614, 4.858141, 4.309934 ],
     "failures" : 0,
     "summary" : {
-      "min" : 4.168963,
-      "median" : 4.761289,
-      "max" : 5.96063
+      "min" : 4.309934,
+      "median" : 4.858141,
+      "max" : 6.107614
     }
   }, {
     "name" : "write_through_p95_latency_ms",
-    "value" : 4.517591,
+    "value" : 4.066218,
     "unit" : "milliseconds",
     "direction" : "lower_is_better",
-    "samples" : [ 4.958352, 4.517591, 3.976908 ],
+    "samples" : [ 5.44572, 4.066218, 4.025972 ],
     "failures" : 0,
     "summary" : {
-      "min" : 3.976908,
-      "median" : 4.517591,
-      "max" : 4.958352
+      "min" : 4.025972,
+      "median" : 4.066218,
+      "max" : 5.44572
     }
   }, {
     "name" : "cache_aside_p99_latency_ms",
-    "value" : 6.576571,
+    "value" : 8.114372,
     "unit" : "milliseconds",
     "direction" : "lower_is_better",
-    "samples" : [ 8.430628, 6.576571, 5.637531 ],
+    "samples" : [ 8.85168, 8.114372, 7.030032 ],
     "failures" : 0,
     "summary" : {
-      "min" : 5.637531,
-      "median" : 6.576571,
-      "max" : 8.430628
+      "min" : 7.030032,
+      "median" : 8.114372,
+      "max" : 8.85168
     }
   }, {
     "name" : "write_through_p99_latency_ms",
-    "value" : 6.561994,
+    "value" : 6.802,
     "unit" : "milliseconds",
     "direction" : "lower_is_better",
-    "samples" : [ 7.505421, 6.561994, 5.058806 ],
+    "samples" : [ 8.870952, 6.802, 6.555491 ],
     "failures" : 0,
     "summary" : {
-      "min" : 5.058806,
-      "median" : 6.561994,
-      "max" : 7.505421
+      "min" : 6.555491,
+      "median" : 6.802,
+      "max" : 8.870952
     }
   }, {
     "name" : "cache_aside_throughput_ops_s",
-    "value" : 490.2354336428329,
+    "value" : 578.5848031873321,
     "unit" : "operations_per_second",
     "direction" : "higher_is_better",
-    "samples" : [ 384.29530527732794, 490.2354336428329, 609.9549333852037 ],
+    "samples" : [ 413.87948126629607, 578.5848031873321, 740.4645995518761 ],
     "failures" : 0,
     "summary" : {
-      "min" : 384.29530527732794,
-      "median" : 490.2354336428329,
-      "max" : 609.9549333852037
+      "min" : 413.87948126629607,
+      "median" : 578.5848031873321,
+      "max" : 740.4645995518761
     }
   }, {
     "name" : "write_through_throughput_ops_s",
-    "value" : 687.9287864210339,
+    "value" : 859.7126121988202,
     "unit" : "operations_per_second",
     "direction" : "higher_is_better",
-    "samples" : [ 573.2608809237586, 687.9287864210339, 808.8116123457855 ],
+    "samples" : [ 600.8624710810714, 859.7126121988202, 924.2998749064102 ],
     "failures" : 0,
     "summary" : {
-      "min" : 573.2608809237586,
-      "median" : 687.9287864210339,
-      "max" : 808.8116123457855
+      "min" : 600.8624710810714,
+      "median" : 859.7126121988202,
+      "max" : 924.2998749064102
     }
   }, {
     "name" : "consistency_failures",
@@ -120,8 +120,8 @@
   } ],
   "execution" : {
     "command" : "powershell -File tools/benchmark.ps1",
-    "started_at" : "2026-08-10T04:59:32.509948651Z",
-    "duration_seconds" : 28.751290837,
+    "started_at" : "2026-08-10T05:13:28.981530424Z",
+    "duration_seconds" : 26.101979608,
     "exit_code" : 0,
     "repeat" : 3
   },
@@ -134,13 +134,13 @@
     "processors" : 6
   },
   "provenance" : {
-    "source_commit" : "68a0e8446d6db4a86ae500d1bc899beb2f09af1b",
+    "source_commit" : "d47e18d8721fac17f824af609c5e056befb4b4a1",
     "clean_tree" : true,
-    "image_ref" : "cache-strategies-bench:dev",
-    "image_digest" : "sha256:ff29ae3470bc919b09ce516900613a968bd541d5c0fc8d9b3a8c0931f7ec7b0d",
-    "dependency_lock_digest" : "sha256:d46ee510c005517c4f2a349e4374263cd3185e9894905fa57fee41178f43227b",
+    "image_ref" : "cache-strategies-bench:d47e18d8721f",
+    "image_digest" : "sha256:5b1723a9ad465808766c3350c9f0487497e8bc66747affb4ca760217055b8db8",
+    "dependency_lock_digest" : "sha256:a1a9eba94118324731bde05226c49142304db1e8b6c8a39d4c3cbe1fed630791",
     "producer" : "local",
-    "artifact_digest" : "sha256:8027e27124e562c7ec157d2535fbde4321a831033f15573f179ce71f7728ad52"
+    "artifact_digest" : "sha256:0b37b55387152338c1243e36a089a0a9435c28a0a6c08887143cc3bec542bde3"
   },
   "comparability_key" : "cache-strategies:redis7:postgres16:java21:80r20w:v2"
 }
