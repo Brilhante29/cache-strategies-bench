@@ -8,7 +8,7 @@ program:
     - commerce product read model
     - benchmark result v2
     - infrastructure port parity pattern
-status: ready
+status: published
 claim: "Cache-aside and write-through are compared on real Redis and PostgreSQL with reproducible latency, hit-ratio, throughput, and consistency evidence."
 stack:
   - java-21
