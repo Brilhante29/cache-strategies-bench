@@ -27,7 +27,7 @@
 
 Workload: 100 products, 80% reads and 20% writes, 200 warm-up operations and 2,000 measured operations per strategy in each of three repetitions (Java 21, Redis 7, PostgreSQL 16, Docker).
 
-How to read it: write-through wins **this** workload because the dataset fits in cache and every write refreshes it. It is not a universal verdict; network topology, concurrency, TTL, dataset size, and write ratio can flip the outcome. The harness exists so that question can be answered for a specific workload.
+**How to read it:** write-through wins **this** workload because the dataset fits in cache and every write refreshes it. It is not a universal verdict; network topology, concurrency, TTL, dataset size, and write ratio can flip the outcome. The harness exists so that question can be answered for a specific workload.
 
 ## Quickstart
 
